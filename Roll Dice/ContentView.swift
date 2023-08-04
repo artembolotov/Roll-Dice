@@ -8,14 +8,21 @@
 import SwiftUI
 
 struct ContentView: View {
+    @StateObject var history = History()
+    
     var body: some View {
-        VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundColor(.accentColor)
-            Text("Hello, world!")
+        TabView {
+            RollView()
+                .tabItem {
+                    Label("Roll", systemImage: "dice")
+                }
+            
+            HistoryView()
+                .tabItem {
+                    Label("History", systemImage: "list.bullet.rectangle")
+                }
         }
-        .padding()
+        .environmentObject(history)
     }
 }
 
@@ -24,3 +31,4 @@ struct ContentView_Previews: PreviewProvider {
         ContentView()
     }
 }
+
