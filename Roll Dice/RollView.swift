@@ -11,13 +11,9 @@ struct RollView: View {
     @State private var sides = 6
     @State private var count = 2
     @State private var result = [Int]()
+    @State private var score: Int?
     
     @EnvironmentObject var history: History
-    
-    
-    var score: Int {
-        result.sum()
-    }
     
     let columns = [
         GridItem(.adaptive(minimum: 70))
@@ -44,14 +40,15 @@ struct RollView: View {
                 
                 Section {
                     Button("Roll", action: roll)
+                        .disabled(!result.isEmpty && score == nil)
                 }
                 
-                if score > 0 {
+                if !result.isEmpty {
                     Section {
                         HStack {
                             Text("Score:")
                             Spacer()
-                            Text("\(score)")
+                            Text(score == nil ? "-" : "\(score!)")
                                 .foregroundColor(.secondary)
                         }
                         
@@ -67,8 +64,24 @@ struct RollView: View {
         }
     }
     
+    @State private var ticsCount = 0
+    
     private func roll() {
-        result = (1...count).map { _ in Int.random(in: 1...sides) }
+        score = nil
+        ticsCount = 15
+        
+        Timer.scheduledTimer(withTimeInterval: 0.05, repeats: true) { timer in
+            ticsCount -= 1
+            result = (1...count).map { _ in Int.random(in: 1...sides) }
+            if ticsCount < 1 {
+                timer.invalidate()
+                fixResult()
+            }
+        }
+    }
+    
+    private func fixResult() {
+        score = result.sum()
         history.append(HistoryItem(result: result, date: Date()))
     }
 }
